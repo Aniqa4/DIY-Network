@@ -1,64 +1,77 @@
+'use client'
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { HiOutlineSaveAs } from "react-icons/hi";
 import { BiSearch } from "react-icons/bi";
 import UserAvatar from "./UserAvatar";
 
 function Navbar() {
-  const [defaultImage, setDefaultImage] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="py-4">
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center">
-          <p className="text-xl text-[#1c1b1b] font-semibold">
-            <Link to="/">MadeInHome</Link>
-          </p>
-          <div>
-            <Link to="/">
-              <div className="flex relative items-center">
-                <form>
-                  <input
-                    type="text"
-                    name=""
-                    placeholder="Search"
-                    className="outline-none border-b lg:w-96 bg-transparent
-                                        border-[#1c1b1b] placeholder:text-[#1c1b10a7]"
-                  />
-                </form>
-                <span className=" absolute right-0">
-                  <BiSearch />
-                </span>
-              </div>
-            </Link>
+    <nav className="py-4 border-b border-canvas-dark bg-inherit">
+      <div className="container mx-auto px-6">
+        <div className="flex justify-between items-center gap-8">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
+            <span className="font-ProtestStrike text-2xl text-ink tracking-tight hover:text-phthalo transition-colors duration-200">
+              DIY Network
+            </span>
+          </Link>
+
+          {/* Search */}
+          <div className="hidden md:flex flex-1 max-w-xs relative items-center">
+            <span className="absolute left-0 text-ink/40 pointer-events-none" aria-hidden="true">
+              <BiSearch size={15} />
+            </span>
+            <input
+              type="search"
+              placeholder="Search posts..."
+              aria-label="Search posts"
+              className="w-full pl-5 pr-3 py-1.5 bg-transparent border-b border-canvas-dark text-sm text-ink placeholder:text-ink/35 outline-none focus:border-ink transition-colors duration-200"
+            />
           </div>
-          <ul className="flex gap-10 items-center">
+
+          {/* Actions */}
+          <ul className="flex gap-6 items-center list-none">
             <li>
-              <Link to="/">
-                <span className="text-xl relative flex">
-                  <HiOutlineSaveAs />
-                  <span className="absolute -top-3 -right-2 text-sm">0</span>
+              <Link
+                href="/"
+                className="relative flex items-center text-ink/55 hover:text-ink transition-colors duration-200"
+                aria-label="Saved posts (0)"
+              >
+                <HiOutlineSaveAs size={20} />
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-2 -right-2 text-[9px] font-bold bg-phthalo text-canvas-light w-4 h-4 rounded-full flex items-center justify-center"
+                >
+                  0
                 </span>
               </Link>
             </li>
             <li>
-              <Link to="/login">Login/Register</Link>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-ink/65 hover:text-phthalo transition-colors duration-200"
+              >
+                Sign in
+              </Link>
             </li>
             <li>
-              <Link to={'/user'}>
+              <Link href="/user" aria-label="Your profile">
                 <img
                   src=""
-                  alt="User Image"
-                  onError={() => setDefaultImage(true)}
-                  className={defaultImage ? "hidden" : "rounded-full w-8 h-8"}
+                  alt="Profile"
+                  onError={() => setImgError(true)}
+                  className={imgError ? "hidden" : "rounded-full w-8 h-8 object-cover ring-2 ring-canvas-dark"}
                 />
-                {defaultImage && <UserAvatar />}
+                {imgError && <UserAvatar />}
               </Link>
             </li>
           </ul>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 

@@ -1,17 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Protest+Strike&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --canvas:       #EDE8DF;
+  --canvas-light: #F7F4EE;
+  --canvas-dark:  #D6CFC2;
+  --ink:          #1A1918;
+  --phthalo:      #1B5E44;
+  --sienna:       #C94C1E;
+}
+
 body {
-    overflow-y: auto;
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: "DM Sans", system-ui, sans-serif;
+  overflow-y: auto;
 }
 
-body::-webkit-scrollbar {
-    width: 10px;
-}
+body::-webkit-scrollbar       { width: 8px; }
+body::-webkit-scrollbar-thumb { background-color: var(--canvas-dark); border-radius: 4px; }
 
-body::-webkit-scrollbar-thumb{
-    background-color: rgb(208, 208, 208);
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

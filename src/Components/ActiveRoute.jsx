@@ -1,17 +1,23 @@
-import { NavLink } from "react-router-dom";
+'use client'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 function ActiveRoute({ to, children }) {
+  const pathname = usePathname();
+  const isActive = to === "/" ? pathname === "/" : pathname === to;
+
   return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
+    <Link
+      href={to}
+      scroll={false}
+      className={
         isActive
-          ? "border px-5 py-1 bg-[#1c1b1b] rounded text-white"
-          : "border px-5 py-1 rounded hover:bg-slate-200"
+          ? "px-4 py-1.5 text-sm font-semibold bg-ink text-canvas-light rounded-sm"
+          : "px-4 py-1.5 text-sm font-medium text-ink/55 border border-canvas-dark rounded-sm hover:border-ink hover:text-ink transition-colors duration-200"
       }
     >
       {children}
-    </NavLink>
+    </Link>
   );
 }
 

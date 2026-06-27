@@ -1,67 +1,91 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+'use client'
+import Link from "next/link";
 import { MdFavorite } from "react-icons/md";
-import UserAvatar from "./UserAvatar";
 import { TiEye } from "react-icons/ti";
-import { BsDot } from "react-icons/bs";
+import UserAvatar from "./UserAvatar";
+import { useState } from "react";
 
-function BlogCard({ blogTitle, nameOfWriter, description,id }) {
-  const [show, setShow] = useState(false);
-  const [defaultImage, setDefaultImage] = useState(false);
+const CATEGORY_STYLES = {
+  Cooking:   { gradient: "from-orange-200 to-amber-50",   label: "text-orange-700"  },
+  Painting:  { gradient: "from-purple-200 to-violet-50",  label: "text-purple-700"  },
+  Gardening: { gradient: "from-emerald-200 to-green-50",  label: "text-emerald-700" },
+  Sewing:    { gradient: "from-pink-200 to-rose-50",      label: "text-pink-700"    },
+  Crafting:  { gradient: "from-amber-200 to-yellow-50",   label: "text-amber-700"   },
+};
+
+const DEFAULT_STYLE = { gradient: "from-canvas to-canvas-light", label: "text-ink/50" };
+
+function BlogCard({ id, blogTitle, nameOfWriter, description, categoryName, views, likes }) {
+  const [imgError, setImgError] = useState(false);
+  const style = CATEGORY_STYLES[categoryName] ?? DEFAULT_STYLE;
 
   return (
-    <Link to={`/blog/${id}`}>
-      <div className="">
-        <div
-          className="relative"
-          onMouseMove={() => setShow(true)}
-          onMouseLeave={() => setShow(false)}
-        >
-          <img
-            src="https://www.shutterstock.com/image-photo/bloggingblog-concepts-ideas-white-worktable-600nw-1029506242.jpg"
-            alt="blogTitle"
-            className={show ? "opacity-70 rounded-xl" : " rounded-xl"}
-          />
-          {show && (
-            <div className="absolute top-[40%] right-[40%]">
-              <p className=" text-xl font-semibold">Read</p>
-            </div>
-          )}
-          <p
-            className="absolute left-0 bottom-0 right-0 bg-black rounded-b-xl bg-opacity-20 text-white
-                    flex justify-end items-baseline p-2"
-          >
-            <div className="flex items-center gap-3 text-xs">
-              <p className="flex gap-1 items-center">
-                <TiEye /> 1M
-              </p>
-              <BsDot />
-              <p className="flex gap-1 items-center">
-                <MdFavorite /> 1K
-              </p>
-            </div>
-          </p>
+    <Link href={`/blog/${id}`} className="block group focus-visible:outline focus-visible:outline-2 focus-visible:outline-phthalo rounded-lg">
+      <article className="bg-canvas-light border border-canvas-dark rounded-lg overflow-hidden h-full flex flex-col transition-all duration-300 group-hover:shadow-lg group-hover:-translate-y-1">
+
+        {/* Gradient thumbnail with initial letter */}
+        <div className={`h-44 bg-gradient-to-br ${style.gradient} flex items-center justify-center flex-shrink-0`}>
+          <span className="font-ProtestStrike text-7xl text-ink/10 select-none">
+            {categoryName?.[0] ?? "·"}
+          </span>
         </div>
-        <div className="grid grid-cols-1 gap-5 py-3">
-          <h1 className="text-xl grid font-ProtestStrike">
+
+        <div className="flex flex-col flex-1 p-5 gap-3">
+          {/* Category label */}
+          <span className={`font-mono text-[10px] uppercase tracking-[0.2em] font-semibold ${style.label}`}>
+            {categoryName}
+          </span>
+
+          {/* Title */}
+          <h2 className="font-ProtestStrike text-xl leading-tight text-ink line-clamp-2">
             {blogTitle}
-            <span className="text-xs">20th January 2024</span>
-          </h1>
-          <Link to={"/user"}>
-            <div className="flex items-center gap-2">
+          </h2>
+
+          {/* Description */}
+          <p className="text-sm text-ink/55 leading-relaxed line-clamp-3 flex-1">
+            {description}
+          </p>
+
+          {/* Author + stats */}
+          <div className="pt-3 mt-auto border-t border-canvas-dark flex items-center justify-between">
+            <Link
+              href="/user"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 hover:text-phthalo transition-colors duration-200"
+            >
               <img
                 src=""
-                alt="User Image"
-                onError={() => setDefaultImage(true)}
-                className={defaultImage ? "hidden" : "rounded-full w-10 h-10"}
+                alt={nameOfWriter}
+                onError={() => setImgError(true)}
+                className={imgError ? "hidden" : "w-6 h-6 rounded-full object-cover"}
               />
-              {defaultImage && <UserAvatar />}
-              <p className="font-semibold cursor-pointer">{nameOfWriter}</p>
-            </div>
-          </Link>
-          <p className=" font-semibold">{description}</p>
+              {imgError && (
+                <span className="w-6 h-6 flex-shrink-0">
+                  <UserAvatar size="sm" />
+                </span>
+              )}
+              <span className="text-xs font-semibold text-ink/70">{nameOfWriter}</span>
+            </Link>
+
+            {(views != null || likes != null) && (
+              <div className="flex items-center gap-3 text-ink/40">
+                {views != null && (
+                  <span className="flex items-center gap-1 text-xs">
+                    <TiEye size={13} />
+                    {views >= 1000 ? `${(views / 1000).toFixed(1)}k` : views}
+                  </span>
+                )}
+                {likes != null && (
+                  <span className="flex items-center gap-1 text-xs">
+                    <MdFavorite size={11} />
+                    {likes}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </article>
     </Link>
   );
 }
