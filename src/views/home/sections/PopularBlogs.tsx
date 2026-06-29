@@ -1,13 +1,13 @@
 'use client'
-import Title from "../../../Components/Title";
-import BlogCard from "../../../Components/BlogCard";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
-import "swiper/css";
-import { blogs } from "../../../data/blogs";
+import Title from "../../../components/Title"
+import BlogCard from "../../../components/BlogCard"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay } from "swiper/modules"
+import "swiper/css"
+import { blogs } from "../../../data/blogs"
 
 function PopularBlogs() {
-  const popular = blogs.filter((b) => b.views > 2000);
+  const popular = blogs.filter((b) => b.views > 2000)
 
   return (
     <section id="popular" className="py-14 border-b border-canvas-dark">
@@ -39,7 +39,7 @@ function PopularBlogs() {
         ))}
       </Swiper>
     </section>
-  );
+  )
 }
 
-export default PopularBlogs;
+export default PopularBlogs

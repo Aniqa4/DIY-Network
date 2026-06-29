@@ -1,10 +1,16 @@
 'use client'
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { ReactNode } from 'react'
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
-function ActiveRoute({ to, children }) {
-  const pathname = usePathname();
-  const isActive = to === "/" ? pathname === "/" : pathname === to;
+interface ActiveRouteProps {
+  to: string
+  children: ReactNode
+}
+
+function ActiveRoute({ to, children }: ActiveRouteProps) {
+  const pathname = usePathname()
+  const isActive = to === "/" ? pathname === "/" : pathname === to
 
   return (
     <Link
@@ -18,7 +24,7 @@ function ActiveRoute({ to, children }) {
     >
       {children}
     </Link>
-  );
+  )
 }
 
-export default ActiveRoute;
+export default ActiveRoute

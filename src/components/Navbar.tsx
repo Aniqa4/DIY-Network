@@ -1,25 +1,23 @@
 'use client'
-import { useState } from "react";
-import Link from "next/link";
-import { HiOutlineSaveAs } from "react-icons/hi";
-import { BiSearch } from "react-icons/bi";
-import UserAvatar from "./UserAvatar";
+import { useState } from "react"
+import Link from "next/link"
+import { HiOutlineSaveAs } from "react-icons/hi"
+import { BiSearch } from "react-icons/bi"
+import UserAvatar from "./UserAvatar"
 
 function Navbar() {
-  const [imgError, setImgError] = useState(false);
+  const [imgError, setImgError] = useState(false)
 
   return (
     <nav className="py-4 border-b border-canvas-dark bg-inherit">
       <div className="container mx-auto px-6">
         <div className="flex justify-between items-center gap-8">
-          {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <span className="font-ProtestStrike text-2xl text-ink tracking-tight hover:text-phthalo transition-colors duration-200">
               DIY Network
             </span>
           </Link>
 
-          {/* Search */}
           <div className="hidden md:flex flex-1 max-w-xs relative items-center">
             <span className="absolute left-0 text-ink/40 pointer-events-none" aria-hidden="true">
               <BiSearch size={15} />
@@ -32,7 +30,6 @@ function Navbar() {
             />
           </div>
 
-          {/* Actions */}
           <ul className="flex gap-6 items-center list-none">
             <li>
               <Link
@@ -72,7 +69,7 @@ function Navbar() {
         </div>
       </div>
     </nav>
-  );
+  )
 }
 
-export default Navbar;
+export default Navbar

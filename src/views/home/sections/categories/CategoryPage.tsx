@@ -1,31 +1,31 @@
 'use client'
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import BlogCard from "../../../../Components/BlogCard";
-import { blogs } from "../../../../data/blogs";
+import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
+import BlogCard from "../../../../components/BlogCard"
+import { blogs } from "../../../../data/blogs"
 
-const INITIAL_LIMIT = 8;
+const INITIAL_LIMIT = 8
 
-function categoryFromPath(pathname) {
-  if (pathname === "/") return null;
-  const segment = pathname.slice(1);
-  return segment.charAt(0).toUpperCase() + segment.slice(1);
+function categoryFromPath(pathname: string): string | null {
+  if (pathname === "/") return null
+  const segment = pathname.slice(1)
+  return segment.charAt(0).toUpperCase() + segment.slice(1)
 }
 
 function CategoryPage() {
-  const pathname = usePathname();
-  const [showAll, setShowAll] = useState(false);
+  const pathname = usePathname()
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
-    setShowAll(false);
-  }, [pathname]);
+    setShowAll(false)
+  }, [pathname])
 
-  const category = categoryFromPath(pathname);
+  const category = categoryFromPath(pathname)
   const filtered = category
     ? blogs.filter((b) => b.categoryName === category)
-    : blogs;
-  const visible = showAll ? filtered : filtered.slice(0, INITIAL_LIMIT);
-  const remaining = filtered.length - INITIAL_LIMIT;
+    : blogs
+  const visible = showAll ? filtered : filtered.slice(0, INITIAL_LIMIT)
+  const remaining = filtered.length - INITIAL_LIMIT
 
   return (
     <div className="pb-10">
@@ -63,7 +63,7 @@ function CategoryPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default CategoryPage;
+export default CategoryPage

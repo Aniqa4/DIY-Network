@@ -1,8 +1,13 @@
-import Title from "../../../../Components/Title";
-import CategoryPage from "./CategoryPage";
-import ActiveRoute from "../../../../Components/ActiveRoute";
+import Title from "../../../../components/Title"
+import CategoryPage from "./CategoryPage"
+import ActiveRoute from "../../../../components/ActiveRoute"
 
-const CATEGORIES = [
+interface Category {
+  to: string
+  label: string
+}
+
+const CATEGORIES: Category[] = [
   { to: "/",            label: "All"          },
   { to: "/cooking",     label: "Cooking"      },
   { to: "/painting",    label: "Painting"     },
@@ -11,7 +16,7 @@ const CATEGORIES = [
   { to: "/crafting",    label: "Crafting"     },
   { to: "/woodworking", label: "Woodworking"  },
   { to: "/knitting",    label: "Knitting"     },
-];
+]
 
 function Categories() {
   return (
@@ -28,7 +33,7 @@ function Categories() {
 
       <CategoryPage />
     </section>
-  );
+  )
 }
 
-export default Categories;
+export default Categories

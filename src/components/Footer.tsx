@@ -1,6 +1,11 @@
-import Link from "next/link";
+import Link from "next/link"
 
-const LINKS = {
+interface NavItem {
+  label: string
+  href: string
+}
+
+const LINKS: Record<string, NavItem[]> = {
   "Explore": [
     { label: "All Posts",  href: "/" },
     { label: "Cooking",    href: "/cooking" },
@@ -14,14 +19,13 @@ const LINKS = {
     { label: "Profile",    href: "/user" },
     { label: "Saved",      href: "/" },
   ],
-};
+}
 
 function Footer() {
   return (
     <footer className="bg-ink text-canvas border-t-4 border-phthalo">
       <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {/* Brand */}
           <div className="md:col-span-1">
             <p className="font-ProtestStrike text-3xl text-canvas-light mb-4">
               DIY Network
@@ -32,7 +36,6 @@ function Footer() {
             </p>
           </div>
 
-          {/* Links */}
           {Object.entries(LINKS).map(([heading, items]) => (
             <div key={heading}>
               <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-phthalo mb-5">
@@ -64,7 +67,7 @@ function Footer() {
         </div>
       </div>
     </footer>
-  );
+  )
 }
 
-export default Footer;
+export default Footer

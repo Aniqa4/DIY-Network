@@ -1,4 +1,6 @@
-export const blogs = [
+import { Blog } from "../types"
+
+export const blogs: Blog[] = [
   {
     id: "1",
     blogTitle: "Classic Spaghetti Carbonara",
@@ -345,8 +347,8 @@ export const blogs = [
       "Knitting notebook for swatches",
     ],
   },
-];
+]
 
-export function getBlogById(id) {
-  return blogs.find((b) => b.id === id) ?? null;
+export function getBlogById(id: string): Blog | null {
+  return blogs.find((b) => b.id === id) ?? null
 }

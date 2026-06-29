@@ -1,20 +1,20 @@
 'use client'
-import { useState } from "react";
-import UserAvatar from "../../Components/UserAvatar";
-import { MdFavorite } from "react-icons/md";
-import { TiEye } from "react-icons/ti";
-import { BsDot } from "react-icons/bs";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import Navbar from "../../Components/Navbar";
-import { HiOutlineSaveAs } from "react-icons/hi";
-import EditBlog from "./EditBlog";
-import { getBlogById } from "../../data/blogs";
+import { useState } from "react"
+import UserAvatar from "../../components/UserAvatar"
+import { MdFavorite } from "react-icons/md"
+import { TiEye } from "react-icons/ti"
+import { BsDot } from "react-icons/bs"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import Navbar from "../../components/Navbar"
+import { HiOutlineSaveAs } from "react-icons/hi"
+import EditBlog from "./EditBlog"
+import { getBlogById } from "../../data/blogs"
 
 function BlogDetails() {
-  const [defaultImage, setDefaultImage] = useState(false);
-  const { id } = useParams();
-  const blog = getBlogById(id);
+  const [defaultImage, setDefaultImage] = useState(false)
+  const { id } = useParams<{ id: string }>()
+  const blog = getBlogById(id)
 
   if (!blog) {
     return (
@@ -26,7 +26,7 @@ function BlogDetails() {
           Blog not found.
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -53,39 +53,24 @@ function BlogDetails() {
               </div>
             </Link>
             <p>
-              Category:
-              <span className="font-medium"> {blog.categoryName}</span>
+              Category: <span className="font-medium">{blog.categoryName}</span>
             </p>
             <p>
-              Posted on: <span className="font-medium"> 20th January 2024</span>
+              Posted on: <span className="font-medium">20th January 2024</span>
             </p>
             <div className="flex items-center gap-5 py-5">
-              <p className="flex gap-1 items-center">
-                <TiEye /> {blog.views}
-              </p>
+              <p className="flex gap-1 items-center"><TiEye /> {blog.views}</p>
               <BsDot />
-              <p className="flex gap-1 items-center">
-                <MdFavorite /> {blog.likes}
-              </p>
+              <p className="flex gap-1 items-center"><MdFavorite /> {blog.likes}</p>
               <BsDot />
-              <p className="flex gap-1 items-center">
-                <HiOutlineSaveAs /> {blog.saved}
-              </p>
+              <p className="flex gap-1 items-center"><HiOutlineSaveAs /> {blog.saved}</p>
             </div>
             <div className="flex gap-3">
-              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">
-                Like
-              </button>
-              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">
-                Save
-              </button>
-              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">
-                Share
-              </button>
+              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">Like</button>
+              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">Save</button>
+              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">Share</button>
               <EditBlog />
-              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">
-                Delete
-              </button>
+              <button className="border border-[#1c1b1b] text-center rounded py-1 px-5">Delete</button>
             </div>
           </div>
           <img
@@ -109,7 +94,7 @@ function BlogDetails() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default BlogDetails;
+export default BlogDetails

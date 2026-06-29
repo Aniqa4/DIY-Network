@@ -1,13 +1,15 @@
+import type { Metadata } from 'next'
+import { ReactNode } from 'react'
 import '../src/index.css'
 import ReduxProvider from '../src/redux/provider'
-import Footer from '../src/Components/Footer'
+import Footer from '../src/components/Footer'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'DIY Network',
   description: 'A home for makers — cooking, painting, gardening, sewing, and crafting.',
 }
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
