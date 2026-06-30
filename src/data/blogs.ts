@@ -19,6 +19,7 @@ export const blogs: Blog[] = [
       "Freshly cracked black pepper",
       "Salt for pasta water",
     ],
+    postedAt: "March 12, 2024",
   },
   {
     id: "2",
@@ -40,6 +41,7 @@ export const blogs: Blog[] = [
       "Fish sauce to taste",
       "1 tsp palm sugar",
     ],
+    postedAt: "April 5, 2024",
   },
   {
     id: "3",
@@ -58,6 +60,7 @@ export const blogs: Blog[] = [
       "100g active sourdough starter",
       "Rice flour for dusting",
     ],
+    postedAt: "January 20, 2024",
   },
   {
     id: "4",
@@ -77,6 +80,7 @@ export const blogs: Blog[] = [
       "Spray bottle",
       "Masking fluid (optional)",
     ],
+    postedAt: "May 8, 2024",
   },
   {
     id: "5",
@@ -96,6 +100,7 @@ export const blogs: Blog[] = [
       "Plastic cups and stir sticks",
       "Gloves and drop sheet",
     ],
+    postedAt: "June 17, 2024",
   },
   {
     id: "6",
@@ -115,6 +120,7 @@ export const blogs: Blog[] = [
       "Flat and fan brushes",
       "Palette knife",
     ],
+    postedAt: "July 3, 2024",
   },
   {
     id: "7",
@@ -135,6 +141,7 @@ export const blogs: Blog[] = [
       "Slow-release vegetable fertilizer",
       "Seedlings of choice",
     ],
+    postedAt: "March 28, 2024",
   },
   {
     id: "8",
@@ -154,6 +161,7 @@ export const blogs: Blog[] = [
       "Small pots with drainage holes",
       "Indirect bright light source",
     ],
+    postedAt: "August 14, 2024",
   },
   {
     id: "9",
@@ -173,6 +181,7 @@ export const blogs: Blog[] = [
       "Water-soluble transfer pen",
       "Small scissors",
     ],
+    postedAt: "September 2, 2024",
   },
   {
     id: "10",
@@ -193,6 +202,7 @@ export const blogs: Blog[] = [
       "Quilting ruler",
       "Pins and seam ripper",
     ],
+    postedAt: "October 11, 2024",
   },
   {
     id: "11",
@@ -212,6 +222,7 @@ export const blogs: Blog[] = [
       "Comb (for fringing)",
       "Measuring tape",
     ],
+    postedAt: "February 6, 2024",
   },
   {
     id: "12",
@@ -231,6 +242,7 @@ export const blogs: Blog[] = [
       "Scissors",
       "Flat brush for sealing",
     ],
+    postedAt: "November 19, 2024",
   },
   {
     id: "13",
@@ -251,6 +263,7 @@ export const blogs: Blog[] = [
       "Sandpaper 120 / 240 grit",
       "Wood finish or paint of choice",
     ],
+    postedAt: "May 22, 2024",
   },
   {
     id: "14",
@@ -271,6 +284,7 @@ export const blogs: Blog[] = [
       "Food-grade mineral oil",
       "Router with roundover bit (optional)",
     ],
+    postedAt: "December 4, 2024",
   },
   {
     id: "15",
@@ -291,6 +305,7 @@ export const blogs: Blog[] = [
       "Ear protection and dust mask",
       "Scrap wood for test passes",
     ],
+    postedAt: "January 9, 2025",
   },
   {
     id: "16",
@@ -310,6 +325,7 @@ export const blogs: Blog[] = [
       "Stitch markers (optional)",
       "Blocking mat and pins",
     ],
+    postedAt: "February 18, 2025",
   },
   {
     id: "17",
@@ -328,6 +344,7 @@ export const blogs: Blog[] = [
       "Row counter or notepad",
       "Stitch holders",
     ],
+    postedAt: "March 3, 2025",
   },
   {
     id: "18",
@@ -346,6 +363,7 @@ export const blogs: Blog[] = [
       "Kitchen scale (for comparing yardage)",
       "Knitting notebook for swatches",
     ],
+    postedAt: "April 14, 2025",
   },
 ]
 

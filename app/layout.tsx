@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 import '../src/index.css'
-import ReduxProvider from '../src/redux/provider'
+import Providers from '../src/components/Providers'
 import Footer from '../src/components/Footer'
 
 export const metadata: Metadata = {
@@ -19,10 +19,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
-        <ReduxProvider>
+        <Providers>
           {children}
           <Footer />
-        </ReduxProvider>
+        </Providers>
       </body>
     </html>
   )

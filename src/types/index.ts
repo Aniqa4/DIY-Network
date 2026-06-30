@@ -8,4 +8,6 @@ export interface Blog {
   saved: number
   description: string
   ingredients: string[]
+  postedAt: string
+  imageUrl?: string
 }

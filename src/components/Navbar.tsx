@@ -1,74 +1,180 @@
 'use client'
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { HiOutlineSaveAs } from "react-icons/hi"
-import { BiSearch } from "react-icons/bi"
+import { BsEnvelope } from "react-icons/bs"
+import { LuUser, LuSettings, LuLogOut } from "react-icons/lu"
 import UserAvatar from "./UserAvatar"
+import InboxDropdown from "./InboxDropdown"
+import SearchBar from "./SearchBar"
+import { useMessages } from "../context/MessagesContext"
+import { useAppSelector } from "../redux/hooks"
+import { useToast } from "../context/ToastContext"
 
-function Navbar() {
-  const [imgError, setImgError] = useState(false)
+interface NavbarProps {
+  onToggleSidebar?: () => void
+  sidebarOpen?: boolean
+}
+
+function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
+  const [profileOpen, setProfileOpen] = useState(false)
+  const profileRef = useRef<HTMLDivElement>(null)
+  const { dmOpen, openDm, closeDm } = useMessages()
+  const savedCount = useAppSelector(state => state.saved.ids.length)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [])
 
   return (
-    <nav className="py-4 border-b border-canvas-dark bg-inherit">
-      <div className="container mx-auto px-6">
-        <div className="flex justify-between items-center gap-8">
-          <Link href="/" className="flex-shrink-0">
-            <span className="font-ProtestStrike text-2xl text-ink tracking-tight hover:text-phthalo transition-colors duration-200">
-              DIY Network
-            </span>
-          </Link>
+    <>
+      <nav className="h-14 bg-inherit">
+        <div className="container mx-auto px-6 h-full">
+          <div className="flex items-center justify-between h-full gap-6">
 
-          <div className="hidden md:flex flex-1 max-w-xs relative items-center">
-            <span className="absolute left-0 text-ink/40 pointer-events-none" aria-hidden="true">
-              <BiSearch size={15} />
-            </span>
-            <input
-              type="search"
-              placeholder="Search posts..."
-              aria-label="Search posts"
-              className="w-full pl-5 pr-3 py-1.5 bg-transparent border-b border-canvas-dark text-sm text-ink placeholder:text-ink/35 outline-none focus:border-ink transition-colors duration-200"
-            />
-          </div>
-
-          <ul className="flex gap-6 items-center list-none">
-            <li>
-              <Link
-                href="/"
-                className="relative flex items-center text-ink/55 hover:text-ink transition-colors duration-200"
-                aria-label="Saved posts (0)"
-              >
-                <HiOutlineSaveAs size={20} />
-                <span
-                  aria-hidden="true"
-                  className="absolute -top-2 -right-2 text-[9px] font-bold bg-phthalo text-canvas-light w-4 h-4 rounded-full flex items-center justify-center"
+            {/* Left — toggle + logo */}
+            <div className="flex items-center gap-4 flex-shrink-0">
+              {onToggleSidebar && (
+                <button
+                  onClick={onToggleSidebar}
+                  aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+                  className="flex flex-col gap-[5px] p-1.5 rounded text-ink/40 hover:text-ink hover:bg-gray-100 transition-all duration-200"
                 >
-                  0
+                  <span className="block w-[18px] h-px bg-current" />
+                  <span className={`block h-px bg-current transition-all duration-300 ${sidebarOpen ? "w-[11px]" : "w-[18px]"}`} />
+                  <span className="block w-[18px] h-px bg-current" />
+                </button>
+              )}
+
+              <Link href="/" className="flex items-center gap-2 group">
+                <span className="w-1.5 h-6 bg-phthalo rounded-full flex-shrink-0 group-hover:bg-sienna transition-colors duration-300" />
+                <span className="font-ProtestStrike text-xl text-ink tracking-tight group-hover:text-phthalo transition-colors duration-200">
+                  DIY Network
                 </span>
               </Link>
-            </li>
-            <li>
+            </div>
+
+            {/* Center — search */}
+            <div className="hidden md:flex flex-1 max-w-sm">
+              <SearchBar />
+            </div>
+
+            {/* Right — actions */}
+            <div className="flex items-center gap-1">
+
+              {/* Saved */}
               <Link
-                href="/login"
-                className="text-sm font-medium text-ink/65 hover:text-phthalo transition-colors duration-200"
+                href="/saved"
+                aria-label={`Saved posts (${savedCount})`}
+                className="relative p-2 rounded-lg text-gray-500 hover:text-ink hover:bg-gray-100 transition-all duration-200"
               >
-                Sign in
+                <HiOutlineSaveAs size={19} />
+                {savedCount > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-1 right-1 text-[8px] font-bold bg-phthalo text-white w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none"
+                  >
+                    {savedCount}
+                  </span>
+                )}
               </Link>
-            </li>
-            <li>
-              <Link href="/user" aria-label="Your profile">
-                <img
-                  src=""
-                  alt="Profile"
-                  onError={() => setImgError(true)}
-                  className={imgError ? "hidden" : "rounded-full w-8 h-8 object-cover ring-2 ring-canvas-dark"}
-                />
-                {imgError && <UserAvatar />}
-              </Link>
-            </li>
-          </ul>
+
+              {/* Notifications / inbox */}
+              <InboxDropdown />
+
+              {/* Direct messages */}
+              <button
+                onClick={() => dmOpen ? closeDm() : openDm()}
+                aria-label="Direct messages"
+                className={`relative p-2 rounded-lg transition-all duration-200 ${
+                  dmOpen
+                    ? "bg-phthalo/10 text-phthalo"
+                    : "text-gray-500 hover:text-ink hover:bg-gray-100"
+                }`}
+              >
+                <BsEnvelope size={18} />
+                <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-sienna text-white text-[8px] font-bold rounded-full flex items-center justify-center leading-none">
+                  2
+                </span>
+              </button>
+
+              <div className="w-px h-5 bg-gray-200 mx-2" />
+
+              {/* Profile dropdown */}
+              <div ref={profileRef} className="relative">
+                <button
+                  onClick={() => setProfileOpen(v => !v)}
+                  aria-label="Profile menu"
+                  aria-expanded={profileOpen}
+                  className={`rounded-full transition-all duration-200 ${
+                    profileOpen
+                      ? "ring-2 ring-phthalo ring-offset-1"
+                      : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
+                  }`}
+                >
+                  <UserAvatar />
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute right-0 top-full mt-2.5 w-56 bg-white rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.08] z-50 overflow-hidden">
+
+                    {/* Mini profile header */}
+                    <div className="px-4 py-3.5 border-b border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <UserAvatar />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-ink truncate">Marco Russo</p>
+                          <p className="text-xs text-gray-400 truncate">marco@example.com</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu items */}
+                    <div className="py-1.5">
+                      <Link
+                        href="/user"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-ink transition-colors"
+                      >
+                        <LuUser size={14} className="text-gray-400 flex-shrink-0" />
+                        View profile
+                      </Link>
+                      <Link
+                        href="/settings"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-ink transition-colors"
+                      >
+                        <LuSettings size={14} className="text-gray-400 flex-shrink-0" />
+                        Settings
+                      </Link>
+                    </div>
+
+                    <div className="border-t border-gray-100 py-1.5">
+                      <button
+                        onClick={() => { setProfileOpen(false); toast("Signed out", "info") }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-red-50 hover:text-red-500 transition-colors group"
+                      >
+                        <LuLogOut size={14} className="text-gray-400 flex-shrink-0 group-hover:text-red-400 transition-colors" />
+                        Sign out
+                      </button>
+                    </div>
+
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   )
 }
 

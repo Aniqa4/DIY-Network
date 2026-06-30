@@ -10,7 +10,7 @@ function PopularBlogs() {
   const popular = blogs.filter((b) => b.views > 2000)
 
   return (
-    <section id="popular" className="py-14 border-b border-canvas-dark">
+    <section id="popular" className="py-6 border-b border-canvas-dark">
       <Title title="Popular Now" />
       <Swiper
         modules={[Autoplay]}
