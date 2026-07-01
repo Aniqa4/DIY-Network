@@ -18,7 +18,11 @@ const CATEGORIES = [
   { to: "/knitting",    label: "Knitting" },
 ]
 
-function Home() {
+interface HomeProps {
+  hideHero?: boolean
+}
+
+function Home({ hideHero = false }: HomeProps) {
   const [scrolling, setScrolling] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const pathname = usePathname()
@@ -64,7 +68,7 @@ function Home() {
               </div>
             )}
 
-            {pathname === "/" && <PopularBlogs />}
+            {pathname === "/" && !hideHero && <PopularBlogs />}
 
             <section className="py-8">
               <h2 className="font-ProtestStrike text-2xl text-ink mb-6">{heading}</h2>

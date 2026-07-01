@@ -1,52 +1,31 @@
 'use client'
 import { useState, useRef, useEffect } from "react"
-import { BsChatDots } from "react-icons/bs"
-import UserAvatar from "./UserAvatar"
+import { BsBell } from "react-icons/bs"
+import { MdFavorite, MdPersonAdd } from "react-icons/md"
+import { BiMessageRounded } from "react-icons/bi"
+import { HiOutlineSaveAs } from "react-icons/hi"
+import { LuFeather } from "react-icons/lu"
+import { useAppDispatch, useAppSelector } from "../redux/hooks"
+import { markAllRead, markRead } from "../redux/features/notifications/notificationsSlice"
+import type { NotifType } from "../redux/features/notifications/notificationsSlice"
 
-interface Message {
-  id: string
-  sender: string
-  preview: string
-  time: string
-  unread: boolean
+interface Props { unreadCount: number }
+
+function typeIcon(type: NotifType) {
+  switch (type) {
+    case "like":    return <MdFavorite size={12} className="text-sienna" />
+    case "comment": return <BiMessageRounded size={12} className="text-phthalo" />
+    case "follow":  return <MdPersonAdd size={12} className="text-violet-500" />
+    case "save":    return <HiOutlineSaveAs size={12} className="text-amber-500" />
+    case "publish": return <LuFeather size={12} className="text-emerald-500" />
+  }
 }
 
-const MESSAGES: Message[] = [
-  {
-    id: "1",
-    sender: "Sarah Chen",
-    preview: "Love your sourdough recipe! I tried it last weekend and it turned out amazing.",
-    time: "2m",
-    unread: true,
-  },
-  {
-    id: "2",
-    sender: "Tom Greenfield",
-    preview: "What type of wood did you use for the floating shelf build?",
-    time: "1h",
-    unread: true,
-  },
-  {
-    id: "3",
-    sender: "Clara Webb",
-    preview: "Thanks for the macramé tips, the plant hanger turned out great!",
-    time: "3h",
-    unread: false,
-  },
-  {
-    id: "4",
-    sender: "Priya Nair",
-    preview: "Do you have any tips for someone trying curry for the first time?",
-    time: "1d",
-    unread: false,
-  },
-]
-
-function InboxDropdown() {
+function InboxDropdown({ unreadCount }: Props) {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState(MESSAGES)
   const ref = useRef<HTMLDivElement>(null)
-  const unreadCount = messages.filter((m) => m.unread).length
+  const notifications = useAppSelector(state => state.notifications.items)
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -56,22 +35,18 @@ function InboxDropdown() {
     return () => document.removeEventListener("mousedown", onClickOutside)
   }, [])
 
-  function markAllRead() {
-    setMessages((prev) => prev.map((m) => ({ ...m, unread: false })))
-  }
-
   return (
     <div ref={ref} className="relative">
       {/* Trigger */}
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(v => !v)}
         className="relative p-2 rounded-lg text-gray-500 hover:text-ink hover:bg-gray-100 transition-all duration-200"
-        aria-label={`Inbox${unreadCount > 0 ? ` — ${unreadCount} unread` : ""}`}
+        aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ""}`}
       >
-        <BsChatDots size={19} />
+        <BsBell size={18} />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-sienna text-white text-[8px] font-bold rounded-full flex items-center justify-center leading-none">
-            {unreadCount}
+            {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
@@ -82,7 +57,7 @@ function InboxDropdown() {
           {/* Header */}
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-ink">Messages</p>
+              <p className="text-sm font-semibold text-ink">Notifications</p>
               {unreadCount > 0 && (
                 <span className="text-[10px] bg-sienna/10 text-sienna font-semibold px-2 py-0.5 rounded-full">
                   {unreadCount} new
@@ -91,7 +66,7 @@ function InboxDropdown() {
             </div>
             {unreadCount > 0 && (
               <button
-                onClick={markAllRead}
+                onClick={() => dispatch(markAllRead())}
                 className="text-[11px] text-gray-400 hover:text-phthalo transition-colors duration-150"
               >
                 Mark all read
@@ -99,45 +74,47 @@ function InboxDropdown() {
             )}
           </div>
 
-          {/* Messages */}
+          {/* Notification list */}
           <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
-            {messages.map((msg) => (
-              <button
-                key={msg.id}
-                className={`w-full flex items-start gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors duration-150 text-left ${
-                  msg.unread ? "bg-phthalo/[0.025]" : ""
-                }`}
-              >
-                <div className="relative flex-shrink-0 mt-0.5">
-                  <UserAvatar size="sm" />
-                  {msg.unread && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-phthalo rounded-full border-2 border-white" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-0.5">
-                    <p
-                      className={`text-sm ${
-                        msg.unread ? "font-semibold text-ink" : "font-medium text-gray-700"
-                      }`}
-                    >
-                      {msg.sender}
-                    </p>
-                    <p className="text-[10px] text-gray-400 flex-shrink-0">{msg.time}</p>
+            {notifications.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-8">No notifications yet.</p>
+            ) : (
+              notifications.map(n => (
+                <button
+                  key={n.id}
+                  onClick={() => dispatch(markRead(n.id))}
+                  className={`w-full flex items-start gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors duration-150 text-left ${
+                    !n.read ? "bg-phthalo/[0.025]" : ""
+                  }`}
+                >
+                  <div className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    !n.read ? "bg-gray-100" : "bg-gray-50"
+                  }`}>
+                    {typeIcon(n.type)}
                   </div>
-                  <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{msg.preview}</p>
-                </div>
-              </button>
-            ))}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`text-xs leading-relaxed ${!n.read ? "text-ink font-medium" : "text-gray-600"}`}>
+                        {n.message}
+                        {n.blogTitle && (
+                          <span className="text-gray-400"> · {n.blogTitle}</span>
+                        )}
+                      </p>
+                      <p className="text-[10px] text-gray-400 flex-shrink-0 mt-0.5">{n.time}</p>
+                    </div>
+                    {!n.read && (
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-phthalo mt-1.5" />
+                    )}
+                  </div>
+                </button>
+              ))
+            )}
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+          <div className="px-4 py-3 border-t border-gray-100">
             <button className="text-xs text-phthalo font-medium hover:underline">
-              Open all messages →
-            </button>
-            <button className="text-xs text-gray-400 hover:text-ink transition-colors">
-              New message
+              See all notifications →
             </button>
           </div>
         </div>

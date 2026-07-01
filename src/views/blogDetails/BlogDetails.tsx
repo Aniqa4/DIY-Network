@@ -16,6 +16,9 @@ import { getBlogById, blogs } from "../../data/blogs"
 import { readingTime } from "../../utils/readingTime"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { toggleSaved } from "../../redux/features/saved/savedSlice"
+import { toggleLiked } from "../../redux/features/liked/likedSlice"
+import { addToHistory } from "../../redux/features/history/historySlice"
+import { addNotification } from "../../redux/features/notifications/notificationsSlice"
 import { useToast } from "../../context/ToastContext"
 
 const CATEGORY_STYLES: Record<string, { gradient: string; label: string; accent: string }> = {
@@ -34,17 +37,24 @@ const DEFAULT_STYLE = {
   accent: "bg-gray-100 text-gray-600 border-gray-200",
 }
 
-const MOCK_COMMENTS = [
-  { id: 1, name: "Lily Park",       text: "This was so helpful! I tried it last weekend and it turned out perfect.", date: "June 12, 2025" },
-  { id: 2, name: "Tom Greenfield",  text: "Great step-by-step breakdown. One tip: I found letting it rest a bit longer really helped.", date: "June 15, 2025" },
-  { id: 3, name: "Sarah Chen",      text: "Love this! Bookmarked it for the holidays.", date: "June 22, 2025" },
+interface Comment {
+  id: number
+  name: string
+  text: string
+  date: string
+}
+
+const SEED_COMMENTS: Comment[] = [
+  { id: 1, name: "Lily Park",      text: "This was so helpful! I tried it last weekend and it turned out perfect.", date: "June 12, 2025" },
+  { id: 2, name: "Tom Greenfield", text: "Great step-by-step breakdown. One tip: letting it rest a bit longer really helped.", date: "June 15, 2025" },
+  { id: 3, name: "Sarah Chen",     text: "Love this! Bookmarked it for the holidays.", date: "June 22, 2025" },
 ]
 
 function BlogDetails() {
-  const [liked, setLiked] = useState(false)
   const [readProgress, setReadProgress] = useState(0)
   const [showShare, setShowShare] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [comments, setComments] = useState<Comment[]>(SEED_COMMENTS)
   const [commentText, setCommentText] = useState("")
 
   const { id } = useParams<{ id: string }>()
@@ -52,10 +62,19 @@ function BlogDetails() {
 
   const dispatch = useAppDispatch()
   const savedIds = useAppSelector(state => state.saved.ids)
+  const likedIds = useAppSelector(state => state.liked.ids)
+  const user = useAppSelector(state => state.auth.user)
   const isSaved = blog ? savedIds.includes(blog.id) : false
+  const isLiked = blog ? likedIds.includes(blog.id) : false
 
   const { toast } = useToast()
 
+  // Track reading history
+  useEffect(() => {
+    if (blog) dispatch(addToHistory(blog.id))
+  }, [blog?.id])
+
+  // Reading progress bar
   useEffect(() => {
     const handleScroll = () => {
       const el = document.documentElement
@@ -84,12 +103,15 @@ function BlogDetails() {
   const pageUrl = typeof window !== "undefined" ? window.location.href : ""
 
   const handleLike = () => {
-    setLiked(v => !v)
-    toast(!liked ? "Added to likes" : "Removed from likes")
+    dispatch(toggleLiked(blog.id))
+    toast(!isLiked ? "Added to likes" : "Removed from likes")
   }
 
   const handleSave = () => {
     dispatch(toggleSaved(blog.id))
+    if (!isSaved) {
+      dispatch(addNotification({ type: "save", message: `You saved "${blog.blogTitle}"`, blogTitle: blog.blogTitle }))
+    }
     toast(!isSaved ? "Post saved!" : "Removed from saved")
   }
 
@@ -103,6 +125,14 @@ function BlogDetails() {
 
   const handlePostComment = () => {
     if (!commentText.trim()) return
+    const newComment: Comment = {
+      id: Date.now(),
+      name: user?.name ?? "You",
+      text: commentText.trim(),
+      date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+    }
+    setComments(prev => [...prev, newComment])
+    dispatch(addNotification({ type: "comment", message: `You commented on "${blog.blogTitle}"`, blogTitle: blog.blogTitle }))
     toast("Comment posted!")
     setCommentText("")
   }
@@ -202,22 +232,22 @@ function BlogDetails() {
             <div className="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
               <span className="flex items-center gap-1.5"><TiEye size={15} />{blog.views >= 1000 ? `${(blog.views / 1000).toFixed(1)}k` : blog.views}</span>
               <BsDot className="text-gray-300" />
-              <span className="flex items-center gap-1.5"><MdFavorite size={13} />{blog.likes + (liked ? 1 : 0)}</span>
+              <span className="flex items-center gap-1.5"><MdFavorite size={13} />{blog.likes + (isLiked ? 1 : 0)}</span>
               <BsDot className="text-gray-300" />
               <span className="flex items-center gap-1.5"><HiOutlineSaveAs size={14} />{blog.saved + (isSaved ? 1 : 0)}</span>
               <BsDot className="text-gray-300" />
-              <span className="flex items-center gap-1.5"><BiMessageRounded size={14} />{MOCK_COMMENTS.length}</span>
+              <span className="flex items-center gap-1.5"><BiMessageRounded size={14} />{comments.length}</span>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handleLike}
                 className={`flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-full border transition-all duration-200 ${
-                  liked ? "border-sienna bg-sienna/10 text-sienna" : "border-gray-200 text-gray-600 hover:border-sienna hover:text-sienna"
+                  isLiked ? "border-sienna bg-sienna/10 text-sienna" : "border-gray-200 text-gray-600 hover:border-sienna hover:text-sienna"
                 }`}
               >
-                {liked ? <MdFavorite size={14} /> : <MdFavoriteBorder size={14} />}
-                {liked ? "Liked" : "Like"}
+                {isLiked ? <MdFavorite size={14} /> : <MdFavoriteBorder size={14} />}
+                {isLiked ? "Liked" : "Like"}
               </button>
 
               <button
@@ -283,11 +313,11 @@ function BlogDetails() {
           {/* Comments */}
           <div className="mt-12">
             <h2 className="font-ProtestStrike text-2xl text-ink mb-6">
-              Comments <span className="text-gray-400 font-sans font-normal text-base">({MOCK_COMMENTS.length})</span>
+              Comments <span className="text-gray-400 font-sans font-normal text-base">({comments.length})</span>
             </h2>
 
             <div className="space-y-4 mb-6">
-              {MOCK_COMMENTS.map(comment => (
+              {comments.map(comment => (
                 <div key={comment.id} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm flex gap-4">
                   <UserAvatar size="sm" />
                   <div className="flex-1 min-w-0">

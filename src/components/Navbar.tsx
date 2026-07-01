@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { HiOutlineSaveAs } from "react-icons/hi"
 import { BsEnvelope } from "react-icons/bs"
 import { LuUser, LuSettings, LuLogOut } from "react-icons/lu"
@@ -8,7 +9,8 @@ import UserAvatar from "./UserAvatar"
 import InboxDropdown from "./InboxDropdown"
 import SearchBar from "./SearchBar"
 import { useMessages } from "../context/MessagesContext"
-import { useAppSelector } from "../redux/hooks"
+import { useAppSelector, useAppDispatch } from "../redux/hooks"
+import { logout } from "../redux/features/auth/authSlice"
 import { useToast } from "../context/ToastContext"
 
 interface NavbarProps {
@@ -19,8 +21,13 @@ interface NavbarProps {
 function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
+
   const { dmOpen, openDm, closeDm } = useMessages()
   const savedCount = useAppSelector(state => state.saved.ids.length)
+  const { user, isLoggedIn } = useAppSelector(state => state.auth)
+  const unreadCount = useAppSelector(state => state.notifications.items.filter(n => !n.read).length)
+  const dispatch = useAppDispatch()
+  const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -32,6 +39,13 @@ function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
   }, [])
+
+  const handleLogout = () => {
+    setProfileOpen(false)
+    dispatch(logout())
+    toast("Signed out", "info")
+    router.push("/login")
+  }
 
   return (
     <>
@@ -86,8 +100,8 @@ function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
                 )}
               </Link>
 
-              {/* Notifications / inbox */}
-              <InboxDropdown />
+              {/* Notifications bell */}
+              <InboxDropdown unreadCount={unreadCount} />
 
               {/* Direct messages */}
               <button
@@ -107,68 +121,80 @@ function Navbar({ onToggleSidebar, sidebarOpen }: NavbarProps) {
 
               <div className="w-px h-5 bg-gray-200 mx-2" />
 
-              {/* Profile dropdown */}
-              <div ref={profileRef} className="relative">
-                <button
-                  onClick={() => setProfileOpen(v => !v)}
-                  aria-label="Profile menu"
-                  aria-expanded={profileOpen}
-                  className={`rounded-full transition-all duration-200 ${
-                    profileOpen
-                      ? "ring-2 ring-phthalo ring-offset-1"
-                      : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
-                  }`}
+              {/* Not logged in → Sign in link */}
+              {!isLoggedIn && (
+                <Link
+                  href="/login"
+                  className="text-sm font-medium px-4 py-1.5 rounded-full border border-gray-200 text-ink/70 hover:border-phthalo hover:text-phthalo transition-all duration-200"
                 >
-                  <UserAvatar />
-                </button>
+                  Sign in
+                </Link>
+              )}
 
-                {profileOpen && (
-                  <div className="absolute right-0 top-full mt-2.5 w-56 bg-white rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.08] z-50 overflow-hidden">
+              {/* Logged in → Profile dropdown */}
+              {isLoggedIn && (
+                <div ref={profileRef} className="relative">
+                  <button
+                    onClick={() => setProfileOpen(v => !v)}
+                    aria-label="Profile menu"
+                    aria-expanded={profileOpen}
+                    className={`rounded-full transition-all duration-200 ${
+                      profileOpen
+                        ? "ring-2 ring-phthalo ring-offset-1"
+                        : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
+                    }`}
+                  >
+                    <UserAvatar />
+                  </button>
 
-                    {/* Mini profile header */}
-                    <div className="px-4 py-3.5 border-b border-gray-100">
-                      <div className="flex items-center gap-3">
-                        <UserAvatar />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-ink truncate">Marco Russo</p>
-                          <p className="text-xs text-gray-400 truncate">marco@example.com</p>
+                  {profileOpen && (
+                    <div className="absolute right-0 top-full mt-2.5 w-56 bg-white rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.08] z-50 overflow-hidden">
+
+                      {/* Mini profile header */}
+                      <div className="px-4 py-3.5 border-b border-gray-100">
+                        <div className="flex items-center gap-3">
+                          <UserAvatar />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-ink truncate">{user?.name}</p>
+                            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Menu items */}
-                    <div className="py-1.5">
-                      <Link
-                        href="/user"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-ink transition-colors"
-                      >
-                        <LuUser size={14} className="text-gray-400 flex-shrink-0" />
-                        View profile
-                      </Link>
-                      <Link
-                        href="/settings"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-ink transition-colors"
-                      >
-                        <LuSettings size={14} className="text-gray-400 flex-shrink-0" />
-                        Settings
-                      </Link>
-                    </div>
+                      {/* Menu items */}
+                      <div className="py-1.5">
+                        <Link
+                          href="/user"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-ink transition-colors"
+                        >
+                          <LuUser size={14} className="text-gray-400 flex-shrink-0" />
+                          View profile
+                        </Link>
+                        <Link
+                          href="/settings"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-ink transition-colors"
+                        >
+                          <LuSettings size={14} className="text-gray-400 flex-shrink-0" />
+                          Settings
+                        </Link>
+                      </div>
 
-                    <div className="border-t border-gray-100 py-1.5">
-                      <button
-                        onClick={() => { setProfileOpen(false); toast("Signed out", "info") }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-red-50 hover:text-red-500 transition-colors group"
-                      >
-                        <LuLogOut size={14} className="text-gray-400 flex-shrink-0 group-hover:text-red-400 transition-colors" />
-                        Sign out
-                      </button>
-                    </div>
+                      <div className="border-t border-gray-100 py-1.5">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-red-50 hover:text-red-500 transition-colors group"
+                        >
+                          <LuLogOut size={14} className="text-gray-400 flex-shrink-0 group-hover:text-red-400 transition-colors" />
+                          Sign out
+                        </button>
+                      </div>
 
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
             </div>
           </div>

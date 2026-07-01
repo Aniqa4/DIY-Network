@@ -7,34 +7,29 @@ import AddBlog from "./AddBlog"
 import FollowDropdown from "../../components/FollowDropdown"
 import { useMessages } from "../../context/MessagesContext"
 import { blogs } from "../../data/blogs"
+import { useAppSelector } from "../../redux/hooks"
 import { LuCamera } from "react-icons/lu"
 
 const FOLLOWERS = [
-  { id: "f1", name: "Sarah Chen",       bio: "Painter & watercolor enthusiast",    isFollowing: true  },
-  { id: "f2", name: "Tom Greenfield",   bio: "Gardener · Woodworker",              isFollowing: false },
-  { id: "f3", name: "Hannah Brooks",    bio: "Baker and sourdough lover",          isFollowing: true  },
-  { id: "f4", name: "Priya Nair",       bio: "Home cook from Chennai",             isFollowing: false },
-  { id: "f5", name: "James Okafor",     bio: "Artist & DIY maker",                 isFollowing: false },
-  { id: "f6", name: "Elena Vasquez",    bio: "Oil painter · Plein air",            isFollowing: true  },
+  { id: "f1", name: "Sarah Chen",       bio: "Painter & watercolor enthusiast"    },
+  { id: "f2", name: "Tom Greenfield",   bio: "Gardener · Woodworker"              },
+  { id: "f3", name: "Hannah Brooks",    bio: "Baker and sourdough lover"          },
+  { id: "f4", name: "Priya Nair",       bio: "Home cook from Chennai"             },
+  { id: "f5", name: "James Okafor",     bio: "Artist & DIY maker"                },
+  { id: "f6", name: "Elena Vasquez",    bio: "Oil painter · Plein air"            },
 ]
 
 const FOLLOWING = [
-  { id: "g1", name: "Clara Webb",       bio: "Macramé & textile artist",           isFollowing: true },
-  { id: "g2", name: "Ruth Carter",      bio: "Quilter · Woodworker",               isFollowing: true },
-  { id: "g3", name: "Lily Park",        bio: "Plant mom · Succulent collector",    isFollowing: true },
-  { id: "g4", name: "Fatima Al-Rashid", bio: "Embroidery & hand-sewing",           isFollowing: true },
-  { id: "g5", name: "Mia Thompson",     bio: "Crafter & decoupage artist",         isFollowing: true },
+  { id: "g1", name: "Clara Webb",        bio: "Macramé & textile artist"          },
+  { id: "g2", name: "Ruth Carter",       bio: "Quilter · Woodworker"              },
+  { id: "g3", name: "Lily Park",         bio: "Plant mom · Succulent collector"   },
+  { id: "g4", name: "Fatima Al-Rashid",  bio: "Embroidery & hand-sewing"          },
+  { id: "g5", name: "Mia Thompson",      bio: "Crafter & decoupage artist"        },
 ]
 
-const PROFILE_BLOGS = [
-  blogs[0],   // Cooking
-  blogs[2],   // Cooking
-  blogs[3],   // Painting
-  blogs[6],   // Gardening
-  blogs[8],   // Sewing
-  blogs[10],  // Crafting
-  blogs[12],  // Woodworking
-  blogs[15],  // Knitting
+const BASE_BLOGS = [
+  blogs[0], blogs[2], blogs[3], blogs[6],
+  blogs[8], blogs[10], blogs[12], blogs[15],
 ]
 
 function UserProfile() {
@@ -44,23 +39,28 @@ function UserProfile() {
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const { openDm } = useMessages()
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setAvatarSrc(URL.createObjectURL(file))
-  }
+  const user = useAppSelector(state => state.auth.user)
+  const userPosts = useAppSelector(state => state.posts.items)
 
   const DEFAULT_BIO = "Home cook, amateur woodworker, and occasional gardener based in Rome. I share recipes, weekend builds, and anything I make with my hands. Sourdough obsessed. Always experimenting."
   const [bio, setBio] = useState(DEFAULT_BIO)
   const [editingBio, setEditingBio] = useState(false)
   const [draftBio, setDraftBio] = useState(bio)
 
-  const categories = ["All", ...Array.from(new Set(PROFILE_BLOGS.map((b) => b.categoryName)))]
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarSrc(URL.createObjectURL(file))
+  }
+
+  // Merge user-created posts first, then base profile blogs
+  const allProfileBlogs = [...userPosts, ...BASE_BLOGS]
+  const categories = ["All", ...Array.from(new Set(allProfileBlogs.map(b => b.categoryName)))]
 
   const visible =
     activeCategory === "All"
-      ? PROFILE_BLOGS
-      : PROFILE_BLOGS.filter((b) => b.categoryName === activeCategory)
+      ? allProfileBlogs
+      : allProfileBlogs.filter(b => b.categoryName === activeCategory)
 
   return (
     <div className="bg-white min-h-screen">
@@ -83,6 +83,8 @@ function UserProfile() {
           {/* Profile header */}
           <div className="flex items-end justify-between -mt-12 mb-8 flex-wrap gap-4">
             <div className="flex items-end gap-4">
+
+              {/* Editable avatar */}
               <div
                 className="relative w-24 h-24 rounded-full ring-4 ring-white shadow-lg flex-shrink-0 cursor-pointer group"
                 onClick={() => avatarInputRef.current?.click()}
@@ -105,8 +107,9 @@ function UserProfile() {
                   onChange={handleAvatarChange}
                 />
               </div>
+
               <div className="pb-1">
-                <h1 className="font-ProtestStrike text-2xl text-ink">Marco Russo</h1>
+                <h1 className="font-ProtestStrike text-2xl text-ink">{user?.name ?? "Marco Russo"}</h1>
                 <p className="text-sm text-gray-500 mt-0.5">Maker · Cook · Woodworker</p>
               </div>
             </div>
@@ -114,13 +117,13 @@ function UserProfile() {
             <div className="flex items-center gap-5 pb-1 flex-wrap">
               <div className="flex items-center gap-5">
                 <div className="text-center">
-                  <p className="text-lg font-semibold text-ink">{PROFILE_BLOGS.length}</p>
+                  <p className="text-lg font-semibold text-ink">{allProfileBlogs.length}</p>
                   <p className="text-[10px] text-gray-400 uppercase tracking-wider">Posts</p>
                 </div>
                 <div className="w-px h-8 bg-gray-100" />
-                <FollowDropdown type="followers" count={FOLLOWERS.length} users={FOLLOWERS} />
+                <FollowDropdown type="followers" users={FOLLOWERS} />
                 <div className="w-px h-8 bg-gray-100" />
-                <FollowDropdown type="following" count={FOLLOWING.length} users={FOLLOWING} />
+                <FollowDropdown type="following" users={FOLLOWING} />
               </div>
 
               <div className="flex items-center gap-2">
@@ -128,7 +131,7 @@ function UserProfile() {
                   Follow
                 </button>
                 <button
-                  onClick={() => openDm("Marco Russo")}
+                  onClick={() => openDm(user?.name ?? "Marco Russo")}
                   className="px-5 py-2 rounded-full border border-gray-200 text-ink/70 text-sm font-medium hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
                 >
                   Message
@@ -145,7 +148,7 @@ function UserProfile() {
                 <textarea
                   autoFocus
                   value={draftBio}
-                  onChange={(e) => setDraftBio(e.target.value)}
+                  onChange={e => setDraftBio(e.target.value)}
                   rows={3}
                   className="w-full text-sm text-ink leading-relaxed resize-none border-b border-phthalo/40 bg-transparent outline-none placeholder:text-gray-300 focus:border-phthalo transition-colors duration-200"
                   placeholder="Write something about yourself…"
@@ -167,9 +170,7 @@ function UserProfile() {
               </div>
             ) : (
               <div className="flex items-start gap-2">
-                <p className="text-sm text-gray-500 leading-relaxed flex-1">
-                  {bio}
-                </p>
+                <p className="text-sm text-gray-500 leading-relaxed flex-1">{bio}</p>
                 <button
                   onClick={() => { setDraftBio(bio); setEditingBio(true) }}
                   aria-label="Edit bio"
@@ -189,8 +190,8 @@ function UserProfile() {
 
             {/* Tabs */}
             <div className="flex items-center gap-0 mb-8 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {categories.map((cat) => {
-                const count = cat === "All" ? PROFILE_BLOGS.length : PROFILE_BLOGS.filter((b) => b.categoryName === cat).length
+              {categories.map(cat => {
+                const count = cat === "All" ? allProfileBlogs.length : allProfileBlogs.filter(b => b.categoryName === cat).length
                 const isActive = activeCategory === cat
                 return (
                   <button
@@ -215,7 +216,7 @@ function UserProfile() {
 
             {/* Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {visible.map((blog) => (
+              {visible.map(blog => (
                 <BlogCard
                   key={blog.id}
                   id={blog.id}

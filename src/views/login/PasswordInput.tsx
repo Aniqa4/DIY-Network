@@ -1,14 +1,15 @@
 'use client'
-import { useState } from 'react'
-import { ReactNode } from 'react'
+import { useState, type ChangeEvent, type ReactNode } from 'react'
 
 interface PasswordInputProps {
   label: string
   placeholder?: string
   labelExtra?: ReactNode
+  value?: string
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
-function PasswordInput({ label, placeholder = '••••••••', labelExtra }: PasswordInputProps) {
+function PasswordInput({ label, placeholder = '••••••••', labelExtra, value, onChange }: PasswordInputProps) {
   const [visible, setVisible] = useState(false)
 
   return (
@@ -23,6 +24,8 @@ function PasswordInput({ label, placeholder = '••••••••', labelE
         <input
           type={visible ? 'text' : 'password'}
           placeholder={placeholder}
+          value={value}
+          onChange={onChange}
           className="w-full border-b border-canvas-dark bg-transparent pb-2.5 pt-1 pr-8 text-sm text-ink placeholder:text-ink/30 outline-none focus:border-phthalo transition-colors duration-200"
         />
         <button
